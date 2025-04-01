@@ -1,0 +1,24 @@
+{
+            "MerchantRequestID":"b54f-471d-93d9-f7f3bf3f7c0e3266948",
+            "CheckoutRequestID":"ws_CO_11032025111211964791338643",
+            "ResponseCode": "0",
+            "ResponseDescription":"Success. Request accepted for processing",
+            "CustomerMessage":"Success. Request accepted for processing"
+        }
+        
+{
+            "MerchantRequestID":"5fe8-4261-87f6-6d7d41adc6c31468218",
+            "CheckoutRequestID":"ws_CO_11032025111300927791338643",
+            "ResponseCode": "0",
+            "ResponseDescription":"Success. Request accepted for processing",
+            "CustomerMessage":"Success. Request accepted for processing"
+        }
+        
+{
+            "MerchantRequestID":"b54f-471d-93d9-f7f3bf3f7c0e3267391",
+            "CheckoutRequestID":"ws_CO_11032025113649709791338643",
+            "ResponseCode": "0",
+            "ResponseDescription":"Success. Request accepted for processing",
+            "CustomerMessage":"Success. Request accepted for processing"
+        }
+        
