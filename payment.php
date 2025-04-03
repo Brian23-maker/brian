@@ -95,10 +95,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stkURL = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest";
         $callbackURL = "https://yourdomain.com/callback.php";
 
-        // Format phone number
-        if (preg_match('/^0/', $phone)) {
-            $phone = preg_replace('/^0/', '254', $phone);
+        // Format phone number - updated to handle 01 format
+        $phone = preg_replace('/[^0-9]/', '', $phone);
+        
+        // Validate phone number length (should be 9 digits after 0/01 is removed)
+        if (strlen($phone) < 9) {
+            throw new Exception("Invalid phone number. Please use format 07xxxxxxxx or 01xxxxxxxx");
         }
+        
+        // Convert to 254 format
+        if (preg_match('/^(0|01)/', $phone)) {
+            $phone = preg_replace('/^(0|01)/', '254', $phone);
+        } elseif (!preg_match('/^254/', $phone)) {
+            $phone = '254' . $phone;
+        }
+        
+        // Ensure the final number is 12 digits (254 + 9 digits)
+        if (strlen($phone) != 12) {
+            throw new Exception("Invalid phone number length after conversion");
+        }
+
+        // Create clear payment description
+        $event_short = substr($event, 0, 12); // Limit to 12 chars
+        $venue_short = substr($venue, 0, 12); // Limit to 12 chars
+        $amount_formatted = number_format($amount);
 
         $payload = [
             "BusinessShortCode" => $businessShortCode,
@@ -110,8 +130,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             "PartyB" => $businessShortCode,
             "PhoneNumber" => $phone,
             "CallBackURL" => $callbackURL,
-            "AccountReference" => "EventPayment",
-            "TransactionDesc" => "Payment for $event at $venue"
+            "AccountReference" => "EVENT: $event_short",
+            "TransactionDesc" => "VENUE: $venue_short | Ksh $amount_formatted"
         ];
 
         $curl = curl_init();
@@ -132,9 +152,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $result = json_decode($response, true);
         
         if (isset($result["ResponseCode"]) && $result["ResponseCode"] == "0") {
-            $message = "STK Push Sent. Check your phone to approve the payment.";
+            $message = "STK Push Sent. Check your phone to approve payment for $event at $venue";
         } else {
-            throw new Exception("STK Push Failed. Please try again.");
+            $error_msg = $result["errorMessage"] ?? "Unknown error";
+            throw new Exception("Payment failed: $error_msg");
         }
     } catch (Exception $e) {
         $message = $e->getMessage();
@@ -147,9 +168,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Form</title>
+    <title>Event Payment Portal</title>
     <style>
-        /* General Styles */
         body {
             font-family: 'Arial', sans-serif;
             background: linear-gradient(135deg, #00a86b, #008080);
@@ -161,7 +181,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             height: 100vh;
             color: #333;
         }
-
         .container {
             background: white;
             border-radius: 15px;
@@ -171,24 +190,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             text-align: center;
             animation: fadeIn 1s ease-in-out;
         }
-
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-
         h2 {
             color: #00a86b;
             margin-bottom: 20px;
             font-size: 24px;
         }
-
         label {
             display: block;
             margin: 15px 0 5px;
@@ -196,7 +206,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             color: #555;
             text-align: left;
         }
-
         input, select {
             width: 100%;
             padding: 12px;
@@ -206,7 +215,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             font-size: 16px;
             transition: border-color 0.3s ease;
         }
-
         select {
             appearance: none;
             background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
@@ -214,12 +222,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             background-position: right 1rem center;
             background-size: 1em;
         }
-
         input:focus, select:focus {
             border-color: #00a86b;
             outline: none;
         }
-
         .btn {
             width: 100%;
             padding: 12px;
@@ -231,11 +237,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             cursor: pointer;
             transition: background 0.3s ease;
         }
-
         .btn:hover {
             background: #008080;
         }
-
         .back-btn {
             display: inline-block;
             width: 100%;
@@ -251,29 +255,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             text-decoration: none;
             margin-top: 10px;
         }
-
         .back-btn:hover {
             background: #c0392b;
         }
-
         .error {
             color: #e74c3c;
             font-weight: bold;
             margin-top: 10px;
         }
-        
         .success {
             color: #00a86b;
             font-weight: bold;
             margin-top: 10px;
         }
+        .logo {
+            width: 120px;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Payment Form</h2>
+        <img src="https://th.bing.com/th/id/OIP.yi2pvKxD_TGay1eEwE-GVQHaFa?w=292&h=213&c=8&rs=1&qlt=90&o=6&pid=3.1&rm=2" alt="Event Logo" class="logo">
+        <h2>Event Payment Portal</h2>
+        
         <?php if (!empty($message)): ?>
-            <p class="<?php echo strpos($message, 'Failed') !== false ? 'error' : 'success' ?>">
+            <p class="<?php echo strpos($message, 'failed') !== false ? 'error' : 'success' ?>">
                 <?php echo htmlspecialchars($message); ?>
             </p>
         <?php endif; ?>
@@ -302,16 +309,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </select>
 
             <label for="phone">Phone Number:</label>
-            <input type="text" id="phone" name="phone" placeholder="07XXXXXXXX" 
+            <input type="text" id="phone" name="phone" placeholder="07XXXXXXXX or 01XXXXXXXX" 
+                   pattern="(0|01)[0-9]{8,9}" 
+                   title="Please enter a valid phone number starting with 0 or 01"
                    value="<?php echo isset($_POST['phone']) ? htmlspecialchars($_POST['phone']) : ''; ?>" required>
             
-            <label for="amount">Amount:</label>
-            <input type="number" id="amount" name="amount" placeholder="Enter amount" min="1500" required
+            <label for="amount">Amount (Ksh):</label>
+            <input type="number" id="amount" name="amount" placeholder="Minimum 1500" min="1500" required
                    value="<?php echo isset($_POST['amount']) ? htmlspecialchars($_POST['amount']) : ''; ?>">
             
-            <button type="submit" class="btn">Submit Payment</button>
+            <button type="submit" class="btn">Make Payment</button>
         </form>
-        <a href="user_dashboard.php" class="back-btn">Back to User Dashboard</a>
+        <a href="user_dashboard.php" class="back-btn">Back to Dashboard</a>
     </div>
 </body>
 </html>

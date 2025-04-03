@@ -76,25 +76,52 @@ try {
     <title>User Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* General Styles */
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #1e1e2f; /* Dark background */
-            color: #ffffff; /* White text */
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
+        :root {
+            --primary: #3498db;
+            --primary-dark: #2980b9;
+            --secondary: #2c3e50;
+            --light: #ecf0f1;
+            --dark: #2a2a40;
+            --darker: #1e1e2f;
+            --success: #2ecc71;
+            --error: #e74c3c;
+            --text: #333;
+            --text-light: #7f8c8d;
         }
 
-        /* Navbar Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--text);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .background-pattern {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background-image: radial-gradient(rgba(52, 152, 219, 0.1) 2px, transparent 2px);
+            background-size: 30px 30px;
+            z-index: 0;
+            pointer-events: none;
+        }
+
         .navbar {
             width: 100%;
-            background: #2c3e50; /* Dark blue */
-            padding: 15px;
-            text-align: center;
+            background: var(--secondary);
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             position: fixed;
             top: 0;
@@ -104,159 +131,189 @@ try {
         .navbar a {
             color: white;
             text-decoration: none;
-            padding: 10px 20px;
-            font-size: 18px;
-            transition: 0.3s;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
         }
 
         .navbar a:hover {
-            background: #3498db; /* Light blue */
-            border-radius: 5px;
+            background: var(--primary);
+            transform: translateY(-2px);
         }
 
-        /* Main Container Styles */
         .main-container {
             display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: flex-start;
-            width: 100%;
-            height: calc(100vh - 60px); /* Subtract navbar height */
-            padding: 20px;
-            margin-top: 60px; /* Offset for navbar */
-            overflow-x: auto;
-            overflow-y: hidden;
+            flex-direction: column;
+            padding: 1rem;
+            margin-top: 4rem;
+            gap: 1rem;
+            position: relative;
+            z-index: 1;
         }
 
-        /* Section Styles */
+        @media (min-width: 1024px) {
+            .main-container {
+                flex-direction: row;
+                align-items: flex-start;
+            }
+        }
+
         .section {
-            background: #2a2a40; /* Darker background */
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            width: 30%;
-            min-width: 300px;
-            margin: 0 10px;
-            height: 100%;
-            overflow-y: auto;
-        }
-
-        .section h2 {
-            margin-bottom: 15px;
-            color: #3498db; /* Light blue */
-            font-size: 20px;
-        }
-
-        /* Form Styles */
-        textarea, select, button, input {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
             width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #444;
-            border-radius: 5px;
-            font-size: 14px;
-            background: #3a3a4f; /* Dark input background */
-            color: #ffffff; /* White text */
+            margin-bottom: 1rem;
+            transition: transform 0.3s ease;
+        }
+
+        @media (min-width: 1024px) {
+            .section {
+                width: calc(33.333% - 1rem);
+                margin-bottom: 0;
+            }
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+            font-weight: 600;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 0.5rem;
+        }
+
+        textarea, select, input {
+            width: 100%;
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+            border: 1px solid #dfe6e9;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus, select:focus, input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            outline: none;
+        }
+
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 0.8rem center;
+            background-size: 1rem;
         }
 
         button {
-            background-color: #3498db; /* Light blue */
+            background-color: var(--primary);
             color: white;
-            cursor: pointer;
             border: none;
-            transition: background-color 0.3s;
+            padding: 0.8rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 0.5rem;
         }
 
         button:hover {
-            background-color: #2980b9; /* Darker blue */
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(41, 128, 185, 0.3);
         }
 
-        /* Comment Box Styles */
         .comment-box {
-            border: 1px solid #444;
-            padding: 10px;
-            margin-top: 10px;
-            border-radius: 5px;
-            background: #3a3a4f; /* Dark background */
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 0.5rem;
         }
 
         .comment {
-            margin: 10px 0;
-            padding: 10px;
-            border-bottom: 1px solid #444;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 3px solid var(--primary);
         }
 
-        .comment:last-child {
-            border-bottom: none;
+        .comment p {
+            margin-bottom: 0.5rem;
         }
 
         .comment .response {
-            margin-top: 10px;
-            padding: 10px;
-            background: #2a2a40; /* Darker background */
-            border-left: 3px solid #3498db; /* Light blue */
-            border-radius: 5px;
+            background: #e8f4fc;
+            padding: 0.8rem;
+            border-radius: 6px;
+            margin-top: 0.8rem;
+            border-left: 3px solid var(--secondary);
         }
 
-        /* Chat Box Styles */
         .chat-box {
-            border: 1px solid #444;
-            padding: 10px;
             height: 300px;
             overflow-y: auto;
-            background: #3a3a4f; /* Dark background */
-            margin-top: 10px;
-            border-radius: 5px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
             display: flex;
             flex-direction: column;
         }
 
         .message {
-            margin: 5px 0;
-            padding: 8px 12px;
-            border-radius: 15px;
             max-width: 80%;
-            word-wrap: break-word;
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            margin-bottom: 0.8rem;
+            position: relative;
         }
 
         .message.user {
-            background: #3498db; /* Light blue for user messages */
+            background: var(--primary);
             color: white;
             align-self: flex-end;
-            border-bottom-right-radius: 5px;
+            border-bottom-right-radius: 4px;
         }
 
         .message.bot {
-            background: #444; /* Darker for bot messages */
-            color: white;
+            background: #e8f4fc;
+            color: var(--text);
             align-self: flex-start;
-            border-bottom-left-radius: 5px;
+            border-bottom-left-radius: 4px;
         }
 
         .message-time {
-            font-size: 0.7em;
-            color: #aaa;
-            margin-top: 3px;
+            font-size: 0.7rem;
+            color: var(--text-light);
+            margin-top: 0.3rem;
             text-align: right;
         }
 
         .typing-indicator {
             display: none;
-            padding: 8px 12px;
-            background: #444;
-            color: white;
-            border-radius: 15px;
             align-self: flex-start;
-            border-bottom-left-radius: 5px;
-            margin: 5px 0;
-            max-width: 60%;
+            background: #e8f4fc;
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            margin-bottom: 0.8rem;
+            border-bottom-left-radius: 4px;
         }
 
         .typing-indicator span {
             display: inline-block;
             width: 8px;
             height: 8px;
-            background-color: #ccc;
+            background-color: var(--primary);
             border-radius: 50%;
             margin: 0 2px;
             animation: typing 1s infinite ease-in-out;
@@ -277,64 +334,87 @@ try {
 
         .chat-controls {
             display: flex;
-            gap: 10px;
-            margin-top: 10px;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .chat-controls input {
+            flex: 1;
+            margin: 0;
         }
 
         .chat-controls button {
-            flex: 1;
-        }
-
-        #voice-status {
-            margin-top: 5px;
-            font-size: 0.8em;
-            color: #aaa;
+            width: auto;
+            margin: 0;
+            padding: 0.8rem;
         }
 
         .suggested-questions {
             display: flex;
             flex-wrap: wrap;
-            gap: 5px;
-            margin-bottom: 10px;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
         }
 
         .suggested-question {
-            background: #3a3a4f;
-            border: 1px solid #444;
-            border-radius: 15px;
-            padding: 5px 10px;
-            font-size: 0.8em;
+            background: #e8f4fc;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.2s ease;
         }
 
         .suggested-question:hover {
-            background: #3498db;
+            background: var(--primary);
+            color: white;
+        }
+
+        .success-message {
+            color: var(--success);
+            margin: 1rem 0;
+            padding: 0.8rem;
+            background: #e8f8f0;
+            border-radius: 6px;
+            border-left: 3px solid var(--success);
+        }
+
+        .error-message {
+            color: var(--error);
+            margin: 1rem 0;
+            padding: 0.8rem;
+            background: #fdedec;
+            border-radius: 6px;
+            border-left: 3px solid var(--error);
         }
     </style>
 </head>
 <body>
+    <div class="background-pattern"></div>
+    
     <div class="navbar">
-        <a href="event_schedule.php">Create Event Schedule</a>
-        <a href="event_register.php">Register an Event</a>
-        <a href="view_venues.php">View Available Venues</a>
-        <a href="update_phone.php">Update Phone Number</a>
-        <a href="payment.php">Make payment</a>
-        <a href="logout.php">Logout</a>
+        <a href="event_schedule.php"><i class="fas fa-calendar-alt"></i> Create Schedule</a>
+        <a href="event_register.php"><i class="fas fa-user-plus"></i> Register Event</a>
+        <a href="view_venues.php"><i class="fas fa-map-marker-alt"></i> View Venues</a>
+        <a href="update_phone.php"><i class="fas fa-phone"></i> Update Phone</a>
+        <a href="payment.php"><i class="fas fa-credit-card"></i> Make Payment</a>
+        <a href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
 
     <div class="main-container">
         <!-- Leave a Comment Section -->
         <div class="section">
-            <h2>Leave a Comment</h2>
+            <h2><i class="fas fa-comment"></i> Leave a Comment</h2>
             <?php if ($success_message): ?>
-                <p style="color: #4caf50;"><?= $success_message ?></p>
+                <div class="success-message"><?= $success_message ?></div>
             <?php endif; ?>
             <?php if ($error_message): ?>
-                <p style="color: #ff4444;"><?= $error_message ?></p>
+                <div class="error-message"><?= $error_message ?></div>
             <?php endif; ?>
             <form method="post">
-                <textarea name="comment" placeholder="Write your comment..." required></textarea>
+                <textarea name="comment" placeholder="Write your comment..." rows="4" required></textarea>
                 <select name="venue_id">
                     <option value="">Select Venue (optional)</option>
                     <?php foreach ($venues as $venue): ?>
@@ -347,13 +427,13 @@ try {
                         <option value="<?= $event['id'] ?>"><?= $event['event_name'] ?></option>
                     <?php endforeach; ?>
                 </select>
-                <button type="submit">Submit Comment</button>
+                <button type="submit"><i class="fas fa-paper-plane"></i> Submit Comment</button>
             </form>
         </div>
 
         <!-- Your Comments Section -->
         <div class="section">
-            <h2>Your Comments</h2>
+            <h2><i class="fas fa-comments"></i> Your Comments</h2>
             <div class="comment-box">
                 <?php if (empty($user_comments)): ?>
                     <p>No comments found.</p>
@@ -361,10 +441,17 @@ try {
                     <?php foreach ($user_comments as $comment): ?>
                         <div class="comment">
                             <p><strong>Comment:</strong> <?= htmlspecialchars($comment['comment']) ?></p>
-                            <p><strong>Date:</strong> <?= htmlspecialchars($comment['created_at']) ?></p>
+                            <p><small>Posted on: <?= htmlspecialchars($comment['created_at']) ?></small></p>
+                            <?php if (!empty($comment['venue_name'])): ?>
+                                <p><small>Venue: <?= htmlspecialchars($comment['venue_name']) ?></small></p>
+                            <?php endif; ?>
+                            <?php if (!empty($comment['event_name'])): ?>
+                                <p><small>Event: <?= htmlspecialchars($comment['event_name']) ?></small></p>
+                            <?php endif; ?>
                             <?php if (!empty($comment['response'])): ?>
                                 <div class="response">
-                                    <strong>Admin Response:</strong> <?= htmlspecialchars($comment['response']) ?>
+                                    <strong>Admin Response:</strong>
+                                    <p><?= htmlspecialchars($comment['response']) ?></p>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -375,14 +462,21 @@ try {
 
         <!-- Chat with Assistant Section -->
         <div class="section">
-            <h2>Chat with Assistant</h2>
+            <h2><i class="fas fa-robot"></i> Chat with Assistant</h2>
             
-            <!-- Suggested Questions -->
             <div class="suggested-questions">
-                <div class="suggested-question" onclick="insertQuestion('How do I register for an event?')">Register event</div>
-                <div class="suggested-question" onclick="insertQuestion('How to make a payment?')">Make payment</div>
-                <div class="suggested-question" onclick="insertQuestion('View available venues')">View venues</div>
-                <div class="suggested-question" onclick="insertQuestion('Help with comments')">Comment help</div>
+                <div class="suggested-question" onclick="insertQuestion('How do I register for an event?')">
+                    <i class="fas fa-user-plus"></i> Register event
+                </div>
+                <div class="suggested-question" onclick="insertQuestion('How to make a payment?')">
+                    <i class="fas fa-credit-card"></i> Make payment
+                </div>
+                <div class="suggested-question" onclick="insertQuestion('View available venues')">
+                    <i class="fas fa-map-marker-alt"></i> View venues
+                </div>
+                <div class="suggested-question" onclick="insertQuestion('Help with comments')">
+                    <i class="fas fa-comment"></i> Comment help
+                </div>
             </div>
             
             <div class="chat-box" id="chat-box">
@@ -407,8 +501,6 @@ try {
                 <button onclick="clearChat()"><i class="fas fa-trash"></i> Clear</button>
                 <button onclick="showHelp()"><i class="fas fa-question-circle"></i> Help</button>
             </div>
-            
-            <p id="voice-status">Voice recognition is ready.</p>
         </div>
     </div>
 
@@ -416,7 +508,6 @@ try {
         // Enhanced Chatbot functionality
         const chatBox = document.getElementById('chat-box');
         const userMessageInput = document.getElementById('user-message');
-        const voiceStatus = document.getElementById('voice-status');
         const typingIndicator = document.getElementById('typing-indicator');
         
         // Chatbot memory to maintain context
@@ -561,7 +652,7 @@ try {
         // Voice recognition functionality
         function startVoiceRecognition() {
             if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                voiceStatus.textContent = "Voice recognition not supported in this browser.";
+                alert("Voice recognition not supported in this browser.");
                 return;
             }
 
@@ -572,7 +663,7 @@ try {
             recognition.start();
 
             recognition.onstart = () => {
-                voiceStatus.textContent = "Listening... Speak now.";
+                appendMessage("Listening... Speak now.", 'bot');
             };
 
             recognition.onresult = (event) => {
@@ -581,12 +672,8 @@ try {
                 sendMessage();
             };
 
-            recognition.onend = () => {
-                voiceStatus.textContent = "Voice recognition is ready.";
-            };
-
             recognition.onerror = (event) => {
-                voiceStatus.textContent = "Error occurred: " + event.error;
+                appendMessage("Error occurred in voice recognition: " + event.error, 'bot');
             };
         }
 
